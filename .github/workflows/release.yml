@@ -1,0 +1,21 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --features=git
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/jj
