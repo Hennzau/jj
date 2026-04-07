@@ -26,34 +26,36 @@ enum ReCommand {
     #[command(group(
         clap::ArgGroup::new("mode")
             .required(true)
+            .multiple(false)
             .args(["destination", "client", "server"])
     ))]
     Export {
         /// The destination (local path or ssh remote)
-        #[arg(value_hint = clap::ValueHint::DirPath, conflicts_with_all = ["client", "server"])]
+        #[arg(value_hint = clap::ValueHint::DirPath)]
         destination: Option<String>,
         /// Run as client (stdin/stdout protocol)
-        #[arg(long, conflicts_with = "server")]
+        #[arg(long)]
         client: bool,
         /// Run as server (stdin/stdout protocol)
-        #[arg(long, conflicts_with = "client")]
+        #[arg(long)]
         server: bool,
     },
     #[command(group(
         clap::ArgGroup::new("mode")
             .required(true)
+            .multiple(false)
             .args(["source", "client", "server"])
     ))]
     /// Import from a ReDB remote
     Import {
         /// The source (local path or ssh remote)
-        #[arg(value_hint = clap::ValueHint::DirPath, conflicts_with_all = ["client", "server"])]
+        #[arg(value_hint = clap::ValueHint::DirPath)]
         source: Option<String>,
         /// Run as client (stdin/stdout protocol)
-        #[arg(long, conflicts_with = "server")]
+        #[arg(long)]
         client: bool,
         /// Run as server (stdin/stdout protocol)
-        #[arg(long, conflicts_with = "client")]
+        #[arg(long)]
         server: bool,
     },
     /// Create a new ReDB backed repo
