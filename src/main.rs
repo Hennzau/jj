@@ -18,6 +18,18 @@ enum CustomCommand {
         #[arg(short, long)]
         bare: bool,
     },
+    /// Export a repository.
+    Export {
+        /// The destination repository.
+        #[arg(value_hint = clap::ValueHint::DirPath)]
+        destination: String,
+    },
+    /// Import a repository.
+    Import {
+        /// The source directory.
+        #[arg(value_hint = clap::ValueHint::DirPath)]
+        source: String,
+    },
     /// Clone a repository.
     Clone {
         /// The source repository.
@@ -36,6 +48,8 @@ fn run_custom_command(
 ) -> Result<(), CommandError> {
     match command {
         CustomCommand::Init { destination, bare } => commands::init(ui, ch, destination, bare),
+        CustomCommand::Export { destination } => commands::export(ui, ch, destination),
+        CustomCommand::Import { source } => commands::import(ui, ch, source),
         CustomCommand::Clone {
             source,
             destination,

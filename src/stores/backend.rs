@@ -32,9 +32,9 @@ mod proto {
 const COMMIT_ID_LENGTH: usize = 64;
 const CHANGE_ID_LENGTH: usize = 16;
 
-const FILES: TableDefinition<&[u8], &[u8]> = TableDefinition::new("files");
-const TREES: TableDefinition<&[u8], &[u8]> = TableDefinition::new("trees");
-const COMMITS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("commits");
+pub const FILES: TableDefinition<&[u8], &[u8]> = TableDefinition::new("files");
+pub const TREES: TableDefinition<&[u8], &[u8]> = TableDefinition::new("trees");
+pub const COMMITS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("commits");
 
 #[derive(Debug, Error)]
 #[error("Failed to initialize operation store")]

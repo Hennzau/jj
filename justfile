@@ -1,7 +1,17 @@
 set shell := ["nu", "-c"]
 
+build-git:
+    cargo build --release --features=git
+
 build:
     cargo build --release
+
+shell:
+    nix-shell -p protoc-gen-prost protobuf_33 --command nu
+
+protoc:
+    protoc --prost_out=src/protos -I src src/protos/backend.proto
+    protoc --prost_out=src/protos -I src src/protos/op_store.proto
 
 rm:
     rm -rf test*
@@ -19,6 +29,12 @@ init: rm
     ./target/release/jj init test3
 
     source script.nu; cd test1; random-commits ../target/release/jj 8
+
+step1:
+    cd test1; ../target/release/jj export ../test2
+
+step2:
+    cd test3; ../target/release/jj import ../test2
 
 log:
     ./target/release/log test1

@@ -27,8 +27,8 @@ mod proto {
 const OPERATION_ID_LENGTH: usize = 64;
 const VIEW_ID_LENGTH: usize = 64;
 
-const OPERATIONS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("operations");
-const VIEWS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("views");
+pub const OPERATIONS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("operations");
+pub const VIEWS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("views");
 
 #[derive(Debug, Error)]
 #[error("Failed to initialize operation store")]
