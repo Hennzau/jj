@@ -1,0 +1,66 @@
+// Copyright 2020 The Jujutsu Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package backend;
+
+message TreeValue {
+  message File {
+    bytes id = 1;
+    bool executable = 2;
+    bytes copy_id = 3;
+  }
+
+  oneof value {
+    File file = 2;
+    bytes symlink_id = 3;
+    bytes tree_id = 4;
+  }
+}
+
+message Tree {
+  message Entry {
+    string name = 1;
+    TreeValue value = 2;
+  }
+
+  repeated Entry entries = 1;
+}
+
+message Commit {
+  repeated bytes parents = 1;
+  repeated bytes predecessors = 2;
+
+  repeated bytes root_tree = 3;
+  repeated string conflict_labels = 4;
+
+  bytes change_id = 5;
+  string description = 6;
+
+  message Timestamp {
+    int64 millis_since_epoch = 1;
+    int32 tz_offset = 2;
+  }
+
+  message Signature {
+    string name = 1;
+    string email = 2;
+    Timestamp timestamp = 3;
+  }
+
+  Signature author = 7;
+  Signature committer = 8;
+  optional bytes secure_sig = 9;
+}
