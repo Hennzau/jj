@@ -3,57 +3,95 @@ use jj_cli::{
     command_error::CommandError,
     ui::Ui,
 };
-
 mod commands;
 
 #[derive(clap::Parser, Clone, Debug)]
 enum CustomCommand {
-    /// Initialize a new repository.
-    Init {
-        /// The destination directory for the new repository.
-        #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
-        destination: String,
-
-        /// Whether to create a bare repository (one with no workspace).
-        #[arg(short, long)]
-        bare: bool,
-    },
-    /// Export a repository.
-    Export {
-        /// The destination repository.
-        #[arg(value_hint = clap::ValueHint::DirPath)]
-        destination: String,
-    },
-    /// Import a repository.
-    Import {
-        /// The source directory.
-        #[arg(value_hint = clap::ValueHint::DirPath)]
-        source: String,
-    },
-    /// Clone a repository.
-    Clone {
-        /// The source repository.
-        source: String,
-
-        /// The destination directory for the new repository.
-        #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
-        destination: String,
+    /// Commands for working with ReDB repositories and remotes
+    Re {
+        #[command(subcommand)]
+        command: ReCommand,
     },
 }
 
-fn run_custom_command(
+#[derive(clap::Subcommand, Clone, Debug)]
+enum ReCommand {
+    /// Create a new repo backed by a clone of a ReDB repo
+    Clone {
+        source: String,
+        #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
+        destination: String,
+    },
+    /// Export to a ReDB remote
+    #[command(group(
+        clap::ArgGroup::new("mode")
+            .required(true)
+            .args(["destination", "client", "server"])
+    ))]
+    Export {
+        /// The destination (local path or ssh remote)
+        #[arg(value_hint = clap::ValueHint::DirPath, conflicts_with_all = ["client", "server"])]
+        destination: Option<String>,
+        /// Run as client (stdin/stdout protocol)
+        #[arg(long, conflicts_with = "server")]
+        client: bool,
+        /// Run as server (stdin/stdout protocol)
+        #[arg(long, conflicts_with = "client")]
+        server: bool,
+    },
+    #[command(group(
+        clap::ArgGroup::new("mode")
+            .required(true)
+            .args(["source", "client", "server"])
+    ))]
+    /// Import from a ReDB remote
+    Import {
+        /// The source (local path or ssh remote)
+        #[arg(value_hint = clap::ValueHint::DirPath, conflicts_with_all = ["client", "server"])]
+        source: Option<String>,
+        /// Run as client (stdin/stdout protocol)
+        #[arg(long, conflicts_with = "server")]
+        client: bool,
+        /// Run as server (stdin/stdout protocol)
+        #[arg(long, conflicts_with = "client")]
+        server: bool,
+    },
+    /// Create a new ReDB backed repo
+    Init {
+        #[arg(default_value = ".", value_hint = clap::ValueHint::DirPath)]
+        destination: String,
+
+        /// A bare repository with no working-copy
+        #[arg(long)]
+        bare: bool,
+    },
+}
+
+async fn run_custom_command(
     ui: &mut Ui,
     ch: &CommandHelper,
     command: CustomCommand,
 ) -> Result<(), CommandError> {
     match command {
-        CustomCommand::Init { destination, bare } => commands::init(ui, ch, destination, bare),
-        CustomCommand::Export { destination } => commands::export(ui, ch, destination),
-        CustomCommand::Import { source } => commands::import(ui, ch, source),
-        CustomCommand::Clone {
-            source,
-            destination,
-        } => commands::clone(ui, ch, source, destination),
+        CustomCommand::Re { command } => match command {
+            ReCommand::Init { destination, bare } => {
+                commands::init(ui, ch, &destination, bare).await
+            }
+            ReCommand::Export {
+                destination,
+                client,
+                server,
+            } => commands::export(ui, ch, destination.as_deref(), client, server).await,
+            ReCommand::Import {
+                source,
+                client,
+                server,
+            } => commands::import(ui, ch, source.as_deref(), client, server).await,
+            ReCommand::Clone {
+                source,
+                destination,
+            } => commands::clone(ui, ch, &source, &destination).await,
+        },
     }
 }
 

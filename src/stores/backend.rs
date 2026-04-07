@@ -5,8 +5,8 @@ use std::time::SystemTime;
 use futures::stream::BoxStream;
 use jj_lib::backend::{
     Backend, BackendError, BackendInitError, ChangeId, Commit, CommitId, CopyHistory, CopyId,
-    CopyRecord, FileId, MillisSinceEpoch, SecureSig, Signature, SigningFn, SymlinkId, Timestamp,
-    Tree, TreeId, TreeValue, make_root_commit,
+    CopyRecord, FileId, MillisSinceEpoch, RelatedCopy, SecureSig, Signature, SigningFn, SymlinkId,
+    Timestamp, Tree, TreeId, TreeValue, make_root_commit,
 };
 use jj_lib::conflict_labels::ConflictLabels;
 use jj_lib::content_hash::blake2b_hash;
@@ -280,7 +280,7 @@ impl Backend for RedbBackend {
     async fn get_related_copies(
         &self,
         _copy_id: &CopyId,
-    ) -> Result<Vec<CopyHistory>, BackendError> {
+    ) -> Result<Vec<RelatedCopy>, BackendError> {
         Err(BackendError::Unsupported(
             "The redb backend doesn't support copies".to_string(),
         ))
@@ -549,7 +549,6 @@ fn tree_to_proto(tree: &Tree) -> proto::Tree {
     proto::Tree {
         entries: tree
             .entries()
-            .into_iter()
             .map(|entry| proto::tree::Entry {
                 name: entry.name().as_internal_str().to_owned(),
                 value: Some(tree_value_to_proto(entry.value())),

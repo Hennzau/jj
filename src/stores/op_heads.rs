@@ -10,7 +10,7 @@ use redb::{
 };
 use thiserror::Error;
 
-pub const OP_HEADS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("op_heads");
+pub const OP_HEADS: TableDefinition<&[u8], &[u8]> = TableDefinition::new("heads");
 
 #[derive(Debug, Error)]
 #[error("Failed to initialize operation heads store")]

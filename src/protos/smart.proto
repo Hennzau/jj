@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package smart;
+
+message Pack {
+  map<string, bytes> heads = 1;
+  map<string, bytes> operations = 2;
+  map<string, bytes> views = 3;
+  map<string, bytes> commits = 4;
+  map<string, bytes> trees = 5;
+  map<string, bytes> files = 6;
+}
+
+message Heads {
+  repeated bytes heads = 1;
+}

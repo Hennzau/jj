@@ -13,15 +13,13 @@ use jj_lib::{
     workspace::{Workspace, WorkspaceInitError, default_working_copy_factory},
 };
 
-use pollster::FutureExt;
-
-pub fn init(
+pub async fn init(
     ui: &mut Ui,
     ch: &CommandHelper,
-    destination: String,
+    destination: &str,
     bare: bool,
 ) -> Result<(), CommandError> {
-    let root = ch.cwd().join(&destination);
+    let root = ch.cwd().join(destination);
     let root = jj_lib::file_util::create_or_reuse_dir(&root)
         .and_then(|_| dunce::canonicalize(root))
         .map_err(|e| user_error_with_message("Failed to create directory", e))?;
@@ -39,7 +37,7 @@ pub fn init(
             ReadonlyRepo::default_index_store_initializer(),
             ReadonlyRepo::default_submodule_store_initializer(),
         )
-        .block_on()
+        .await
         .map_err(|e| cli_error_with_message("Failed to initialize bare repo", e))?;
     } else {
         Workspace::init_with_factories(
@@ -54,7 +52,7 @@ pub fn init(
             &*default_working_copy_factory(),
             WorkspaceName::DEFAULT.to_owned(),
         )
-        .block_on()?;
+        .await?;
     }
 
     Ok(())

@@ -60,8 +60,9 @@ message OperationMetadata {
   string hostname = 4;
   string username = 5;
 
+  optional string workspace_name = 6;
   bool is_snapshot = 7;
-  map<string, string> tags = 6;
+  map<string, string> tags = 8;
 }
 
 message CommitPredecessors {

@@ -12,15 +12,13 @@ use jj_lib::{
     workspace::{Workspace, WorkspaceInitError, default_working_copy_factory},
 };
 
-use pollster::FutureExt;
-
-pub fn clone(
+pub async fn clone(
     ui: &mut Ui,
     ch: &CommandHelper,
-    source: String,
-    destination: String,
+    source: &str,
+    destination: &str,
 ) -> Result<(), CommandError> {
-    let root = ch.cwd().join(&destination);
+    let root = ch.cwd().join(destination);
     let root = jj_lib::file_util::create_or_reuse_dir(&root)
         .and_then(|_| dunce::canonicalize(root))
         .map_err(|e| user_error_with_message("Failed to create directory", e))?;
@@ -39,14 +37,15 @@ pub fn clone(
         &*default_working_copy_factory(),
         WorkspaceName::DEFAULT.to_owned(),
     )
-    .block_on()?;
+    .await?;
 
     let jj = std::env::current_exe()?;
 
     let status = std::process::Command::new(jj)
         .current_dir(destination)
+        .arg("re")
         .arg("import")
-        .arg(source)
+        .arg(ch.cwd().join(source))
         .status()?;
 
     if !status.success() {

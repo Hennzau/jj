@@ -68,9 +68,11 @@ pub struct OperationMetadata {
     pub hostname: ::prost::alloc::string::String,
     #[prost(string, tag="5")]
     pub username: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub workspace_name: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(bool, tag="7")]
     pub is_snapshot: bool,
-    #[prost(map="string, string", tag="6")]
+    #[prost(map="string, string", tag="8")]
     pub tags: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]

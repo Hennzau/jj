@@ -275,7 +275,7 @@ impl OpStore for RedbOpStore {
         }
     }
 
-    fn gc(&self, _: &[OperationId], _: SystemTime) -> Result<(), OpStoreError> {
+    async fn gc(&self, _: &[OperationId], _: SystemTime) -> Result<(), OpStoreError> {
         Ok(())
     }
 }
@@ -294,8 +294,8 @@ fn ref_target_to_proto(value: &RefTarget) -> proto::RefTarget {
     };
 
     let merge = value.as_merge();
-    let adds = merge.adds().into_iter().map(term_to_proto).collect();
-    let removes = merge.removes().into_iter().map(term_to_proto).collect();
+    let adds = merge.adds().map(term_to_proto).collect();
+    let removes = merge.removes().map(term_to_proto).collect();
 
     proto::RefTarget { adds, removes }
 }
@@ -428,6 +428,7 @@ fn operation_metadata_from_proto(proto: proto::OperationMetadata) -> OperationMe
         hostname: proto.hostname,
         username: proto.username,
         is_snapshot: proto.is_snapshot,
+        workspace_name: proto.workspace_name.clone().map(Into::into),
         tags: proto.tags,
     }
 }
@@ -439,6 +440,7 @@ fn operation_metadata_to_proto(value: &OperationMetadata) -> proto::OperationMet
         description: value.description.clone(),
         hostname: value.hostname.clone(),
         username: value.username.clone(),
+        workspace_name: value.workspace_name.clone().map(Into::into),
         is_snapshot: value.is_snapshot,
         tags: value.tags.clone(),
     }
@@ -469,7 +471,7 @@ fn commit_predecessors_to_proto(
         .map(|(commit_id, predecessor_ids)| proto::CommitPredecessors {
             commit_id: commit_id.to_bytes(),
             predecessor_ids: predecessor_ids
-                .into_iter()
+                .iter()
                 .map(|id| id.to_bytes())
                 .collect(),
         })
