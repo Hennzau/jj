@@ -94,13 +94,11 @@ impl PackIds {
             .flat_map(|op| op.into_iter());
 
         let (_, _, root_file_ids) = commit_content_ids(roots.into_iter().flat_map(|op| {
-            op.view().block_on().into_iter().flat_map(|view| {
-                view.all_referenced_commit_ids()
-                    .cloned()
-                    .collect::<Vec<_>>()
-                    .into_iter()
-                    .flat_map(|id| store.get_commit(&id).into_iter())
-            })
+            op.all_referenced_commit_ids()
+                .cloned()
+                .collect::<Vec<_>>()
+                .into_iter()
+                .flat_map(|id| store.get_commit(&id).into_iter())
         }));
 
         let mut pack = PackIds {
@@ -113,13 +111,11 @@ impl PackIds {
                 pack.view_ids.insert(op.view_id().clone());
                 pack.op_ids.insert(op.id().clone());
 
-                op.view().block_on().into_iter().flat_map(|view| {
-                    view.all_referenced_commit_ids()
-                        .cloned()
-                        .collect::<Vec<_>>()
-                        .into_iter()
-                        .flat_map(|id| store.get_commit(&id).into_iter())
-                })
+                op.all_referenced_commit_ids()
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .flat_map(|id| store.get_commit(&id).into_iter())
             }));
 
         pack.commit_ids = missing_commit_ids;
